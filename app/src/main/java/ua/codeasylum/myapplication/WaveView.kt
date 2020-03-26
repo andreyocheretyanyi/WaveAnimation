@@ -75,7 +75,7 @@ class WaveView : View {
         for (x in 0..width step 5) {
 
             val y = ((amplitude) * sin(
-                5 / 3 * PI * (x.toFloat() / width) + diff
+                PI * (x.toFloat() / width) + diff
             )) + verticalMid
 
 
