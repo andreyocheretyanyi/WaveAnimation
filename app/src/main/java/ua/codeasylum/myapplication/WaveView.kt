@@ -24,7 +24,7 @@ class WaveView : View {
 
     private val path = Path()
     private val paint = Paint().apply {
-        style = Paint.Style.FILL
+        style = Paint.Style.STROKE
         isAntiAlias = true
         strokeWidth = 5f
     }
@@ -74,9 +74,7 @@ class WaveView : View {
 
         for (x in 0..width step 5) {
 
-            val y = ((amplitude) * sin(
-                PI * (x.toFloat() / width) + diff
-            )) + verticalMid
+            val y = interpolateYByTime(x) + verticalMid
 
 
             if (x == 0) {
@@ -86,15 +84,21 @@ class WaveView : View {
             }
 
         }
-        path.lineTo(width.toFloat(), height.toFloat());
-        path.lineTo(0F, height.toFloat());
-        path.close()
+//        path.lineTo(width.toFloat(), height.toFloat());
+//        path.lineTo(0F, height.toFloat());
         canvas!!.drawPath(path, paint)
 
         if (!heightAnimator.isRunning) {
             heightAnimator.start()
         }
 
+    }
+
+    private fun interpolateYByTime(x: Int): Double {
+        var y =
+              amplitude * -sin(2*PI * (x.toFloat() / width))
+
+        return y
     }
 
     private fun swapPositionsAndColorsGradient() {
@@ -128,7 +132,7 @@ class WaveView : View {
     private val heightAnimator = ValueAnimator.ofFloat(1f, .75f, .5f, .25f, 0f).apply {
         repeatCount = ValueAnimator.INFINITE
         interpolator = LinearInterpolator()
-        duration = 60000
+        duration = 20000
         addUpdateListener {
             swapPositionsAndColorsGradient()
             diff = (it.animatedValue as Float) * 100
