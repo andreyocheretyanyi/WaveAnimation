@@ -44,6 +44,7 @@ class WaveView : View {
     )
 
     private var diff = 0f
+    private val valueForNormalizeDiff = 50f
     private val initialPoint = PointF()
     private val point11 = PointF()
     private val point12 = PointF()
@@ -103,14 +104,17 @@ class WaveView : View {
 
     private fun setPoints() {
         val verticalMid = height / 1.2f
-        initialPoint.x = -50f
+
+        initialPoint.x = -valueForNormalizeDiff
         initialPoint.y = verticalMid + diff
-        point11.set(width / 4f, verticalMid - (height - verticalMid) / 2f + diff)
-        point12.set(width / 3f, (height - verticalMid) / 2f + verticalMid - diff)
-        point13.set(width / 2f, (height - verticalMid) / 2f + verticalMid - diff)
-        point21.set(width.toFloat(), verticalMid - diff)
-        point22.set(width - width / 4f - diff, 100f - diff)
-        point23.set(width.toFloat() + 50 + diff, 100f - diff)
+
+        point11.set(width * 0.25f, verticalMid - (height - verticalMid) * 0.5f + diff)
+        point12.set(width * 0.33f, (height - verticalMid) * 0.5f + verticalMid - diff)
+        point13.set(width * 0.5f, (height - verticalMid) * 0.3f  + verticalMid - diff)
+
+        point21.set(width * 0.7f, verticalMid - diff)
+        point22.set(width * 0.65f - diff, height*0.15f - diff)
+        point23.set(width.toFloat() + valueForNormalizeDiff + diff, height*0.15f - diff)
     }
 
     private fun swapPositionsAndColorsGradient() {
