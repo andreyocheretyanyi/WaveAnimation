@@ -24,9 +24,12 @@ class WaveView : View {
 
     private val path = Path()
     var diff = 0f
-    private val func: (Float, Int, Float, Float, Float, Float) -> PointF =
-        { ampl, x, width, offset, funcCount, ferq ->
-            PointF(x + offset, ampl * sin(ferq * (x / width * funcCount) + diff))
+    private val func: (Float, Int, Float, Float, Float, Float, Boolean) -> PointF =
+        { ampl, x, width, offset, funcCount, ferq, reverse ->
+            PointF(
+                x + offset,
+                ampl * sin(ferq * (x / width * funcCount) + if (reverse) -diff else diff)
+            )
         }
     private var verticalMid = 0.0f
 
@@ -98,15 +101,26 @@ class WaveView : View {
     private fun drawCubicTo(canvas: Canvas?) {
         val initX = width * 0.5f
         val initY =
-            func(amplitude, initX.toInt(), width.toFloat(), 0F, 1f, PI.toFloat()).y + verticalMid
+            func(
+                amplitude,
+                initX.toInt(),
+                width.toFloat(),
+                0F,
+                2f,
+                PI.toFloat(),
+                false
+            ).y + verticalMid
+        val seconPoint =
+            func(amplitude, (width * 0.55f).toInt(), width.toFloat(), 0F, 2f, PI.toFloat(), true)
+        val thirdPoind = func(amplitude, width, width.toFloat(), 0F, 2f, PI.toFloat(), true)
         path.moveTo(initX, initY)
         path.cubicTo(
             width.toFloat(),
             initY,
-            width * 0.55f,
-            (height - initY) * 0.5f,
-            width.toFloat(),
-            height - initY
+            seconPoint.x,
+            seconPoint.y,
+            thirdPoind.x,
+            thirdPoind.y
         )
         path.lineTo(width.toFloat(), height.toFloat());
         path.lineTo(0F, height.toFloat());
@@ -116,7 +130,7 @@ class WaveView : View {
 
     private fun drawSinus(canvas: Canvas?) {
         for (x in 0..width step 5) {
-            val point = func(amplitude, x, width.toFloat(), 0f, 1f, PI.toFloat())
+            val point = func(amplitude, x, width.toFloat(), 0f, 2f, PI.toFloat(), false)
             if (x == 0) {
                 path.moveTo(point.x, point.y + verticalMid)
             } else {
@@ -164,13 +178,13 @@ class WaveView : View {
     }
 
 
-    private val heightAnimator = ValueAnimator.ofFloat(-1f, 1f).apply {
+    private val heightAnimator = ValueAnimator.ofFloat(-10f, 10f).apply {
         repeatCount = ValueAnimator.INFINITE
         interpolator = LinearInterpolator()
-        duration = 60000
+        duration = 20000
         addUpdateListener {
             swapPositionsAndColorsGradient()
-            diff = it.animatedValue as Float * 50
+            diff = it.animatedValue as Float * 5
             invalidate()
         }
 
