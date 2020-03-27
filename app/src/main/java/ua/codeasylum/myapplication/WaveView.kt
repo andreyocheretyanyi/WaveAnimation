@@ -107,7 +107,7 @@ class WaveView : View {
         initialPoint.y = verticalMid + diff
         point11.set(width / 4f, verticalMid - (height - verticalMid) / 2f - diff)
         point12.set(width / 3f, (height - verticalMid) / 2f + verticalMid + diff)
-        point13.set(width / 2f, (height - verticalMid) / 2f + verticalMid + diff)
+        point13.set(width / 2f + diff, (height - verticalMid) / 2f + verticalMid)
         point21.set(width.toFloat(), verticalMid + diff)
         point22.set(width - width / 4f + diff, 100f + diff)
         point23.set(width.toFloat() + 50 - diff, 100f - diff)
