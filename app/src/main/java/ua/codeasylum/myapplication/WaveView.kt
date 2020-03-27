@@ -5,9 +5,11 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
 import java.math.BigDecimal
+import kotlin.math.PI
+import kotlin.math.sin
 
 
 class WaveView : View {
@@ -21,17 +23,24 @@ class WaveView : View {
     ) : super(context, attrs, defStyleAttr)
 
     private val path = Path()
+    var diff = 0f
+    private val func: (Float, Int, Float, Float, Float, Float) -> PointF =
+        { ampl, x, width, offset, funcCount, ferq ->
+            PointF(x + offset, ampl * sin(ferq * (x / width * funcCount) + diff))
+        }
+    private var verticalMid = 0.0f
+
+
     private val paint = Paint().apply {
-        style = Paint.Style.FILL
+        style = Paint.Style.FILL_AND_STROKE
         isAntiAlias = true
         strokeWidth = 5f
     }
 
-    private lateinit var gradient: LinearGradient
-    private var gradientPoint1 = BigDecimal(-.5)
-    private var gradientPoint2 = BigDecimal(0)
-    private var gradientPoint3 = BigDecimal(.5)
-    private var gradientPoint4 = BigDecimal(1)
+    private var point1 = BigDecimal(-.5)
+    private var point2 = BigDecimal(0)
+    private var point3 = BigDecimal(.5)
+    private var point4 = BigDecimal(1)
     private val step = BigDecimal(0.0025)
     private val compareArg = BigDecimal(1.0)
 
@@ -43,20 +52,13 @@ class WaveView : View {
 
     )
 
-    private var diff = 0f
-    private val valueForNormalizeDiff = 50f
-    private val initialPoint = PointF()
-    private val point11 = PointF()
-    private val point12 = PointF()
-    private val point13 = PointF()
-    private val point21 = PointF()
-    private val point22 = PointF()
-    private val point23 = PointF()
+    private val amplitude = 30f
+
+    private lateinit var gradient: LinearGradient
 
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        path.reset()
 
         if (!::gradient.isInitialized)
             gradient = LinearGradient(
@@ -66,35 +68,26 @@ class WaveView : View {
                 height.toFloat(),
                 colors,
                 floatArrayOf(
-                    gradientPoint1.toFloat(),
-                    gradientPoint2.toFloat(),
-                    gradientPoint3.toFloat(),
-                    gradientPoint4.toFloat()
+                    point1.toFloat(),
+                    point2.toFloat(),
+                    point3.toFloat(),
+                    point4.toFloat()
                 ),
                 Shader.TileMode.CLAMP
             )
 
+
         paint.shader = gradient
 
 
-        setPoints()
-        path.moveTo(initialPoint.x, initialPoint.y)
+        for (i in 0..1) {
+            path.reset()
+            when (i) {
+                0 -> drawSinus(canvas)
+                1 -> drawCubicTo(canvas)
+            }
 
-
-        path.cubicTo(
-            point11.x, point11.y,
-            point12.x, point12.y,
-            point13.x, point13.y
-        )
-        path.cubicTo(
-            point21.x, point21.y,
-            point22.x, point22.y,
-            point23.x, point23.y
-        )
-
-        path.lineTo(width.toFloat(), height.toFloat());
-        path.lineTo(0F, height.toFloat());
-        canvas!!.drawPath(path, paint)
+        }
 
         if (!heightAnimator.isRunning) {
             heightAnimator.start()
@@ -102,27 +95,53 @@ class WaveView : View {
 
     }
 
-    private fun setPoints() {
-        val verticalMid = height / 1.2f
+    private fun drawCubicTo(canvas: Canvas?) {
+        val initX = width * 0.5f
+        val initY =
+            func(amplitude, initX.toInt(), width.toFloat(), 0F, 1f, PI.toFloat()).y + verticalMid
+        path.moveTo(initX, initY)
+        path.cubicTo(
+            width.toFloat(),
+            initY,
+            width * 0.55f,
+            (height - initY) * 0.5f,
+            width.toFloat(),
+            height - initY
+        )
+        path.lineTo(width.toFloat(), height.toFloat());
+        path.lineTo(0F, height.toFloat());
+        path.close()
+        canvas!!.drawPath(path, paint)
+    }
 
-        initialPoint.x = -valueForNormalizeDiff
-        initialPoint.y = verticalMid + diff
+    private fun drawSinus(canvas: Canvas?) {
+        for (x in 0..width step 5) {
+            val point = func(amplitude, x, width.toFloat(), 0f, 1f, PI.toFloat())
+            if (x == 0) {
+                path.moveTo(point.x, point.y + verticalMid)
+            } else {
+                path.lineTo(point.x, point.y + verticalMid)
+            }
 
-        point11.set(width * 0.25f, verticalMid - (height - verticalMid) * 0.5f + diff)
-        point12.set(width * 0.33f, (height - verticalMid) * 0.5f + verticalMid - diff)
-        point13.set(width * 0.5f, (height - verticalMid) * 0.3f  + verticalMid - diff)
+        }
+        path.lineTo(width.toFloat(), height.toFloat());
+        path.lineTo(0F, height.toFloat());
+        path.close()
+        canvas!!.drawPath(path, paint)
 
-        point21.set(width * 0.7f, verticalMid - diff)
-        point22.set(width * 0.65f - diff, height*0.15f - diff)
-        point23.set(width.toFloat() + valueForNormalizeDiff + diff, height*0.15f - diff)
+    }
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        verticalMid = height * 0.9f
     }
 
     private fun swapPositionsAndColorsGradient() {
-        if (gradientPoint3.compareTo(compareArg) == 0 || gradientPoint3.compareTo(compareArg) == 1) {
-            gradientPoint4 = gradientPoint3
-            gradientPoint3 = gradientPoint2
-            gradientPoint2 = gradientPoint1
-            gradientPoint1 = BigDecimal(-.5)
+        if (point3.compareTo(compareArg) == 0 || point3.compareTo(compareArg) == 1) {
+            point4 = point3
+            point3 = point2
+            point2 = point1
+            point1 = BigDecimal(-.5)
             val col1 = colors[0]
             val col2 = colors[1]
             val col3 = colors[2]
@@ -134,36 +153,28 @@ class WaveView : View {
             width.toFloat(),
             height.toFloat(),
             colors,
-            floatArrayOf(
-                gradientPoint1.toFloat(),
-                gradientPoint2.toFloat(),
-                gradientPoint3.toFloat(),
-                gradientPoint4.toFloat()
-            ),
+            floatArrayOf(point1.toFloat(), point2.toFloat(), point3.toFloat(), point4.toFloat()),
             Shader.TileMode.CLAMP
         )
 
-        gradientPoint1 = gradientPoint1.add(step)
-        gradientPoint2 = gradientPoint2.add(step)
-        gradientPoint3 = gradientPoint3.add(step)
-        gradientPoint4 = gradientPoint4.add(step)
+        point1 = point1.add(step)
+        point2 = point2.add(step)
+        point3 = point3.add(step)
+        point4 = point4.add(step)
     }
 
 
-    private val heightAnimator =
-        ValueAnimator.ofFloat(-1f, 1f).apply {
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
-            interpolator = AccelerateDecelerateInterpolator()
-            duration = 1500
-            addUpdateListener {
-                swapPositionsAndColorsGradient()
-                diff = (it.animatedValue as Float) * valueForNormalizeDiff
-                invalidate()
-
-            }
-
+    private val heightAnimator = ValueAnimator.ofFloat(-1f, 1f).apply {
+        repeatCount = ValueAnimator.INFINITE
+        interpolator = LinearInterpolator()
+        duration = 60000
+        addUpdateListener {
+            swapPositionsAndColorsGradient()
+            diff = it.animatedValue as Float * 50
+            invalidate()
         }
+
+    }
 
 
 }
