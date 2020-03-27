@@ -55,7 +55,7 @@ class WaveView : View {
 
     )
 
-    private val amplitude = 30f
+    private val amplitude = 20f
 
     private lateinit var gradient: LinearGradient
 
@@ -181,7 +181,7 @@ class WaveView : View {
     private val heightAnimator = ValueAnimator.ofFloat(-10f, 10f).apply {
         repeatCount = ValueAnimator.INFINITE
         interpolator = LinearInterpolator()
-        duration = 20000
+        duration = 40000
         addUpdateListener {
             swapPositionsAndColorsGradient()
             diff = it.animatedValue as Float * 5
