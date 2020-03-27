@@ -158,7 +158,7 @@ class WaveView : View {
             duration = 1500
             addUpdateListener {
                 swapPositionsAndColorsGradient()
-                diff = (it.animatedValue as Float) * 50
+                diff = (it.animatedValue as Float) * valueForNormalizeDiff
                 invalidate()
 
             }
