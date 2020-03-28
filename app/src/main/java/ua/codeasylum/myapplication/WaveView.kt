@@ -164,7 +164,7 @@ class WaveView : View {
 //        }
 
         heightAnimator = EndlessFloatValueAnimator().apply {
-            animDuration = 10000
+            animDuration = 15000
             animInterpolator = LinearInterpolator()
             setValues(0f,1f)
             cycleEndListener = object :EndlessFloatValueAnimator.CycleEndListener{
