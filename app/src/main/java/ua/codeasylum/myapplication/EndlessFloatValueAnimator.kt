@@ -21,10 +21,12 @@ class EndlessFloatValueAnimator : TimeAnimator() {
                         start,
                         endFloat
                     )
-                cycleEndListener?.onCycleEnd()
-                valueUpdateListener?.onValueUpdated(evaluatedValue)
+                valueUpdateListener?.onValueUpdated(
+                    evaluatedValue
+                )
             } else {
                 currentTime = 0L
+                cycleEndListener?.onCycleEnd()
             }
         }
 

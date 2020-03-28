@@ -145,7 +145,7 @@ class WaveView : View {
         heightAnimator = EndlessFloatValueAnimator().apply {
             animDuration = 17500
             animInterpolator = LinearInterpolator()
-            setValues(0f, 1f)
+            setValues(0f, -1f)
             cycleEndListener = object : EndlessFloatValueAnimator.CycleEndListener {
                 override fun onCycleEnd() {
                     diff = 0f
@@ -155,8 +155,8 @@ class WaveView : View {
 
             valueUpdateListener = object : EndlessFloatValueAnimator.ValueUpdateListener {
                 override fun onValueUpdated(value: Float) {
-                    diff = value * 50
-                    matrixXOffset = value * w * 2
+                    diff = value  * 2*PI.toFloat() * 5
+                    matrixXOffset = -value * this@WaveView.w * 2
                     invalidate()
                 }
             }
