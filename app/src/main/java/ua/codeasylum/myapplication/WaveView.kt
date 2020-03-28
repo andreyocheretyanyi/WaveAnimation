@@ -95,12 +95,12 @@ class WaveView : View {
         val thirdPoint = func(amplitude, w, w.toFloat(), 0F, 2f, PI.toFloat(), true)
         path.moveTo(initX, initY)
         path.cubicTo(
-            w.toFloat(),
+            w.toFloat() * 0.9f,
             initY,
             secondPoint.x + secondPoint.y,
-            secondPoint.y + verticalMid * 0.5f,
+            secondPoint.y + verticalMid * 0.4f,
             thirdPoint.x,
-            thirdPoint.y + verticalMid * 0.5f
+            thirdPoint.y + verticalMid * 0.4f
         )
         path.lineTo(w.toFloat(), h.toFloat());
         path.lineTo(0F, h.toFloat());
