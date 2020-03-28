@@ -23,10 +23,6 @@ class WaveView : View {
         defStyleAttr: Int
     ) : super(context, attrs, defStyleAttr)
 
-    private val TOTAL_ANIM_TIME_SEC = 10f
-    private var currentAnimTime = 0F
-    private val interpolator = LinearInterpolator()
-    private val evaluator = FloatEvaluator()
     private lateinit var heightAnimator: ValueAnimator
     private val path = Path()
     var diff = 0f
@@ -147,21 +143,6 @@ class WaveView : View {
             Shader.TileMode.MIRROR
         )
 
-//        heightAnimator = TimeAnimator().apply {
-//            setTimeListener { _, _, deltaTime ->
-//                currentAnimTime += deltaTime / 1000f
-//                if (currentAnimTime <= TOTAL_ANIM_TIME_SEC) {
-//                    val evaluatedValue = evaluate(currentAnimTime / TOTAL_ANIM_TIME_SEC)
-//                    diff = evaluatedValue * 50
-//                    matrixXOffset = w * 2 * evaluatedValue
-//                } else {
-//                    diff = 0f
-//                    currentAnimTime = 0F
-//                }
-//                invalidate()
-//            }
-//
-//        }
 
         heightAnimator = EndlessFloatValueAnimator().apply {
             animDuration = 15000
@@ -186,8 +167,6 @@ class WaveView : View {
 
     }
 
-    private fun evaluate(t: Float): Float =
-        evaluator.evaluate(interpolator.getInterpolation(t), 0f, 1f)
 
 
 }
