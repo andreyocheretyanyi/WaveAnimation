@@ -34,7 +34,7 @@ class WaveView : View {
 
 
     private val paint = Paint().apply {
-        style = Paint.Style.FILL_AND_STROKE
+        style = Paint.Style.FILL
         isAntiAlias = true
         strokeWidth = 5f
     }
