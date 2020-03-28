@@ -1,7 +1,5 @@
 package ua.codeasylum.myapplication
 
-import android.animation.FloatEvaluator
-import android.animation.TimeAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -99,10 +97,10 @@ class WaveView : View {
         path.cubicTo(
             w.toFloat(),
             initY,
-            secondPoint.x,
-            secondPoint.y,
+            secondPoint.x + secondPoint.y,
+            secondPoint.y + verticalMid * 0.5f,
             thirdPoint.x,
-            thirdPoint.y
+            thirdPoint.y + verticalMid * 0.5f
         )
         path.lineTo(w.toFloat(), h.toFloat());
         path.lineTo(0F, h.toFloat());
@@ -145,20 +143,20 @@ class WaveView : View {
 
 
         heightAnimator = EndlessFloatValueAnimator().apply {
-            animDuration = 15000
+            animDuration = 17500
             animInterpolator = LinearInterpolator()
-            setValues(0f,1f)
-            cycleEndListener = object :EndlessFloatValueAnimator.CycleEndListener{
+            setValues(0f, 1f)
+            cycleEndListener = object : EndlessFloatValueAnimator.CycleEndListener {
                 override fun onCycleEnd() {
                     diff = 0f
                     invalidate()
                 }
             }
 
-            valueUpdateListener = object : EndlessFloatValueAnimator.ValueUpdateListener{
+            valueUpdateListener = object : EndlessFloatValueAnimator.ValueUpdateListener {
                 override fun onValueUpdated(value: Float) {
                     diff = value * 50
-                    matrixXOffset = value * w*2
+                    matrixXOffset = value * w * 2
                     invalidate()
                 }
             }
@@ -166,7 +164,6 @@ class WaveView : View {
         }
 
     }
-
 
 
 }
